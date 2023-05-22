@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.js": "/canvas-app/stickers/static/js/main.b9dafcf0.js",
-    "index.html": "/canvas-app/stickers/index.html",
-    "main.b9dafcf0.js.map": "/canvas-app/stickers/static/js/main.b9dafcf0.js.map"
+    "main.js": "/Stickers/static/js/main.b9dafcf0.js",
+    "index.html": "/Stickers/index.html",
+    "main.b9dafcf0.js.map": "/Stickers/static/js/main.b9dafcf0.js.map"
   },
   "entrypoints": [
     "static/js/main.b9dafcf0.js"
