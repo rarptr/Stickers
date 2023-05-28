@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.css": "/stickers/static/css/main.451a950f.css",
-    "main.js": "/stickers/static/js/main.c74ac75a.js",
-    "index.html": "/stickers/index.html",
-    "main.451a950f.css.map": "/stickers/static/css/main.451a950f.css.map",
-    "main.c74ac75a.js.map": "/stickers/static/js/main.c74ac75a.js.map"
+    "main.css": "/Stickers/static/css/main.451a950f.css",
+    "main.js": "/Stickers/static/js/main.c74ac75a.js",
+    "index.html": "/Stickers/index.html",
+    "main.451a950f.css.map": "/Stickers/static/css/main.451a950f.css.map",
+    "main.c74ac75a.js.map": "/Stickers/static/js/main.c74ac75a.js.map"
   },
   "entrypoints": [
     "static/css/main.451a950f.css",
