@@ -1,7 +1,6 @@
 import { Stage } from "konva/lib/Stage";
 
 function zoomStage(stage: Stage, scaleBy: number) {
-
   const oldScale = stage.scaleX();
 
   const pos = {

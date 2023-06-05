@@ -52,7 +52,6 @@ function ElementPanel(): ReactElement {
           onDragStart={handleDragStart}
         />
       </div>
-
     </aside>
   );
 }
