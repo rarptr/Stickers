@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { KEY_OF_DRAG_ELEMENT, SHAPES } from '../../constants';
+import { KEY_OF_DRAG_ELEMENT, SHAPES } from '../../common/constants';
 
 
 const handleDragStart = (event: React.DragEvent<HTMLDivElement>): void => {
@@ -20,7 +20,6 @@ const handleDragStart = (event: React.DragEvent<HTMLDivElement>): void => {
       clientHeight,
     });
 
-    // TODO: nativeEvent
     event.dataTransfer.setData(KEY_OF_DRAG_ELEMENT, dragPayload);
   }
 };
@@ -52,7 +51,6 @@ function ElementPanel(): ReactElement {
           onDragStart={handleDragStart}
         />
       </div>
-
     </aside>
   );
 }

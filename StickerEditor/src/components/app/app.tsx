@@ -4,6 +4,7 @@ function App(): JSX.Element {
 
   return (
     <Editor />
+    // TODO: gh-pages
     // <BrowserRouter>
     //   <Routes>
     //     <Route
