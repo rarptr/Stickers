@@ -1,6 +1,13 @@
 import { Stage } from "konva/lib/Stage";
 import { useState } from "react";
 
+const Scale = {
+  scale: 0.15,
+  max: 2,
+  min: 0.1,
+};
+
+
 function zoomStage(stage: Stage, scaleBy: number) {
   const oldScale = stage.scaleX();
 
@@ -33,12 +40,6 @@ function zoomStage(stage: Stage, scaleBy: number) {
 type ZoomPanelProps = {
   stage: Stage;
 }
-
-const Scale = {
-  scale: 0.15,
-  max: 2,
-  min: 0,
-};
 
 function ZoomPanel(props: ZoomPanelProps) {
   const {stage} = props;
