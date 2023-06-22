@@ -1,7 +1,14 @@
 import { Stage } from "konva/lib/Stage";
+import { useState } from "react";
+
+const Scale = {
+  scale: 0.15,
+  max: 2,
+  min: 0.1,
+};
+
 
 function zoomStage(stage: Stage, scaleBy: number) {
-
   const oldScale = stage.scaleX();
 
   const pos = {
@@ -14,7 +21,6 @@ function zoomStage(stage: Stage, scaleBy: number) {
     y: pos.y / oldScale - stage.y() / oldScale,
   };
 
-  //const newScale = Math.max(0.05, oldScale * scaleBy);
   const newScale = oldScale + scaleBy;
 
   const newPos = {
@@ -37,20 +43,46 @@ type ZoomPanelProps = {
 
 function ZoomPanel(props: ZoomPanelProps) {
   const {stage} = props;
+  const [isMax, setIsMax] = useState(false);
+  const [isMin, setIsMin] = useState(false);
+
+  const handleZoomInClick = () => {
+    if (!isMax) {
+      zoomStage(stage, Scale.scale);
+      const newScale = stage.scaleX() + Scale.scale;
+      if (newScale >= Scale.max) {
+        setIsMax(true);
+      }
+      if (newScale > Scale.min) {
+        setIsMin(false);
+      }
+    }
+  };
+
+  const handleZoomOutClick = () => {
+    if (!isMin) {
+      zoomStage(stage, -Scale.scale);
+      const newScale = stage.scaleX() - Scale.scale;
+      if (newScale <= Scale.min) {
+        setIsMin(true);
+      }
+      if (newScale < Scale.max) {
+        setIsMax(false);
+      }
+    }
+  };
 
   return (
     <div className="zoom-container">
       <button
-        onClick={() => {
-          zoomStage(stage, 0.2);
-        }}
+        onClick={handleZoomInClick}
+        disabled={isMax}
       >
         +
       </button>
       <button
-        onClick={() => {
-          zoomStage(stage, -0.2);
-        }}
+        onClick={handleZoomOutClick}
+        disabled={isMin}
       >
         -
       </button>
