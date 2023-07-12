@@ -1,16 +1,35 @@
 import Konva from 'konva';
 import ZoomPanel from '../zoom-panel/zoom-panel';
 import { Stage as KonvaStage, Layer, Rect as KonvaRect } from 'react-konva';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import { Stage } from 'konva/lib/Stage';
 import { KonvaEventObject } from 'konva/lib/Node';
-import { CANVAS_NAME, MouseKeys } from '../../common/constants';
+import { CANVAS_NAME, KEY_OF_DRAG_ELEMENT, MouseKeys } from '../../common/constants';
 import { getCursorPosRelativeToStageAndScale } from '../../common/utils/konva';
+import { useEditorSelector } from '../../hooks/useEditorSelector';
+import { useAppDispatch } from '../../hooks/useAppDispatch';
+import { createRectangle, moveShape } from '../../store/editorSlice';
+
 
 function CanvasPanel() {
+  const workspace = useEditorSelector(state => state.editor.workspace);
+
   const [stage, setStage] = useState<Stage>();
+  //const [layer, setLayer] = useState<Konva.Layer>();
+
+  const [pointerPosition, setPointerPosition] = useState<Konva.Vector2d>({ x: 0, y: 0 })
+
+  const [isMouseDown, setIsMouseDown] = useState<boolean>(false)
+  const [isMouseOver, setIsMouseOver] = useState<boolean>(false)
+
+  const dispatch = useAppDispatch();
+
+  const [x, setX] = useState(useEditorSelector(state => state.editor.x));
+  const [y, setY] = useState(useEditorSelector(state => state.editor.y));
 
   const handleStage = (node: Stage) => setStage(node)
+
+  const onMouseMove = () => stage && setPointerPosition(stage.getPointerPosition() as Konva.Vector2d)
 
   const [selectionRectangle, setSelectionRectangle] = useState(
     new Konva.Rect({
@@ -139,13 +158,17 @@ function CanvasPanel() {
       return;
     }
 
+    setX(x);
+    setY(y);
+
+
     const layer = new Konva.Layer();
 
     setStage(stage.add(layer));
 
     const rect1 = new Konva.Rect({
-      x: 300,
-      y: 400,
+      x: x,
+      y: y,
       width: 100,
       height: 90,
       fill: 'red',
@@ -153,17 +176,7 @@ function CanvasPanel() {
       draggable: true,
     });
 
-    const rect2 = new Konva.Rect({
-      x: 200,
-      y: 200,
-      width: 150,
-      height: 90,
-      fill: 'green',
-      name: 'rect',
-      draggable: true,
-    });
     layer.add(rect1);
-    layer.add(rect2);
     layer.add(transformer);
 
     const rotater = transformer.findOne('.rotater');
@@ -175,41 +188,101 @@ function CanvasPanel() {
       stage.content.style.cursor = '';
     });
 
-    setTransformer(prev => prev.nodes([rect1, rect2]));
+    //setTransformer(prev => prev.nodes([rect1, rect2]));
+    setTransformer(prev => prev.nodes([rect1]));
 
     layer.add(selectionRectangle);
 
-  }, [selectionRectangle, stage, transformer]);
+  }, [selectionRectangle, stage, transformer, x, y]);
+
+  const shapes = useEditorSelector(state => state.editor.shapes);
+
+
+  const handleDragOver = (event: React.DragEvent<HTMLElement>) =>
+    event.preventDefault();
+
+  const handleDrop = useCallback((event: React.DragEvent<HTMLElement>) => {
+    event.preventDefault();
+
+    const draggedData = event.dataTransfer.getData(KEY_OF_DRAG_ELEMENT);
+
+    if (draggedData && stage) {
+      const { offsetX, offsetY, type, clientHeight, clientWidth } = JSON.parse(draggedData);
+      stage.setPointersPositions(event);
+
+      const coords = stage.getPointerPosition();
+      if (coords == null) {
+        return;
+      }
+
+      //TODO: if (type === SHAPE_TYPES.RECT) {
+      dispatch(createRectangle({
+        x: coords.x - offsetX,
+        y: coords.y - offsetY,
+      }));
+
+    }
+  }, [dispatch, stage]);
 
   return (
     <Fragment>
-      <KonvaStage
-        ref={handleStage}
-        className="canvas-container"
-        width={window.innerWidth}
-        height={window.innerHeight}
-        draggable={true}
-        onContextMenu={e => e.evt.preventDefault()}
-        onMouseDown={(e) => {
-          moveAroundStage(MouseKeys.Right)(e)
-          startSelection(e);
-        }}
-        onMouseUp={closeSelection}
-        onMouseMove={selection}
-        onClick={handleSelection}
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
       >
-        <Layer>
-          <KonvaRect
-            x={50}
-            y={50}
-            width={700}
-            height={700}
-            stroke={'black'}
-            fill={'lightgrey'}
-            name={CANVAS_NAME}
-          />
-        </Layer>
-      </KonvaStage>
+        <KonvaStage
+          ref={handleStage}
+          className="canvas-container"
+          width={window.innerWidth}
+          height={window.innerHeight}
+          draggable={true}
+          onContextMenu={e => e.evt.preventDefault()}
+          onMouseDown={(e) => {
+            setIsMouseDown(true);
+            moveAroundStage(MouseKeys.Right)(e);
+            startSelection(e);
+          }}
+          onMouseUp={(e) => {
+            setIsMouseDown(false);
+            closeSelection(e);
+          }}
+          onMouseMove={(e) => {
+            selection(e);
+            onMouseMove();
+          }}
+          onClick={handleSelection}
+        // onMouseOver={}
+        // onMouseOut={}
+        >
+          <Layer>
+            <KonvaRect
+              x={50}
+              y={50}
+              width={700}
+              height={700}
+              stroke={'black'}
+              fill={'lightgrey'}
+              name={CANVAS_NAME}
+            />
+            {shapes.map(shape => (
+              <KonvaRect
+                key={`shape-${shape.id}`}
+                x={shape.x}
+                y={shape.y}
+                width={shape.width}
+                height={shape.height}
+                fill={'yellow'}
+                name={'rect'}
+                draggable={true}
+                onDragEnd={(e: KonvaEventObject<DragEvent>) => {
+                  dispatch(moveShape({ id: shape.id, x: e.target.x(), y: e.target.y() }));
+                }}
+              />
+            ))}
+
+          </Layer>
+        </KonvaStage>
+      </div>
       {stage &&
         <ZoomPanel stage={stage} />}
     </Fragment>

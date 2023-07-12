@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 import { AppRoute } from "../../common/constants";
+import { JSX } from 'react/jsx-runtime';
 
 function Main(): JSX.Element {
   return (

@@ -1,5 +1,9 @@
 import { Stage } from "konva/lib/Stage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { addTodo, changeScale } from "../../store/editorSlice";
+import Konva from "konva";
+import { useEditorSelector } from "../../hooks/useEditorSelector";
 
 const Scale = {
   scale: 0.15,
@@ -42,13 +46,20 @@ type ZoomPanelProps = {
 }
 
 function ZoomPanel(props: ZoomPanelProps) {
-  const {stage} = props;
+  const { stage } = props;
+  const [zoom, setZoom] = useState(useEditorSelector(state => state.editor.scale));
   const [isMax, setIsMax] = useState(false);
   const [isMin, setIsMin] = useState(false);
+
+
+  const dispatch = useAppDispatch()
+  const onChangeScale = (scale: Konva.Vector2d) => dispatch(changeScale({ scale: scale.x }))
 
   const handleZoomInClick = () => {
     if (!isMax) {
       zoomStage(stage, Scale.scale);
+      onChangeScale(stage.scale()!);
+
       const newScale = stage.scaleX() + Scale.scale;
       if (newScale >= Scale.max) {
         setIsMax(true);
@@ -62,6 +73,8 @@ function ZoomPanel(props: ZoomPanelProps) {
   const handleZoomOutClick = () => {
     if (!isMin) {
       zoomStage(stage, -Scale.scale);
+      onChangeScale(stage.scale()!);
+
       const newScale = stage.scaleX() - Scale.scale;
       if (newScale <= Scale.min) {
         setIsMin(true);
@@ -71,6 +84,7 @@ function ZoomPanel(props: ZoomPanelProps) {
       }
     }
   };
+
 
   return (
     <div className="zoom-container">

@@ -1,5 +1,6 @@
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 import { KEY_OF_DRAG_ELEMENT, SHAPES } from '../../common/constants';
+import { Stage } from 'konva/lib/Stage';
 
 
 const handleDragStart = (event: React.DragEvent<HTMLDivElement>): void => {
@@ -24,7 +25,14 @@ const handleDragStart = (event: React.DragEvent<HTMLDivElement>): void => {
   }
 };
 
-function ElementPanel(): ReactElement {
+
+
+type ElementPanelProps = {
+  action: () => void;
+}
+
+function ElementPanel(props: ElementPanelProps): ReactElement {
+  const { action } = props;
 
   return (
     <aside className="element-panel">
@@ -50,6 +58,14 @@ function ElementPanel(): ReactElement {
           draggable
           onDragStart={handleDragStart}
         />
+        {/* <div>
+          <button
+            className="shape"
+            onClick={action}
+          >
+            КНОПКА ДЛЯ ТЕСТОВ
+          </button>
+        </div > */}
       </div>
     </aside>
   );
